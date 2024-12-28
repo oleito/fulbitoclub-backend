@@ -2,11 +2,21 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import { Logger } from '@nestjs/common';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const logger = new Logger();
   const configService = app.get(ConfigService);
+  const swaggerConfig = new DocumentBuilder()
+    .setTitle('Fulbito App')
+    .setDescription('Una app para gestionar los partidos con tus compas.')
+    .setVersion('0.0.1')
+    .build();
+  const documentFactory = () =>
+    SwaggerModule.createDocument(app, swaggerConfig);
+
+  SwaggerModule.setup('api', app, documentFactory);
 
   const port = configService.get('API_PORT');
   const hostname = configService.get('HOSTNAME');
