@@ -12,7 +12,7 @@ export class AuthService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-    private readonly client: OAuth2Client,
+    private readonly GoogleOAuth2Client: OAuth2Client,
     private readonly jwtService: JwtService,
   ) {}
   async validateUser(token: string) {
@@ -31,6 +31,7 @@ export class AuthService {
     });
 
     if (!currUser) {
+      // TODO mover a un registerUser
       const createUserDto: CreateUserDto = {
         sub: sub,
       };
@@ -39,16 +40,19 @@ export class AuthService {
       this.logger.debug('newUser');
       currUser = await this.userRepository.save(newUser);
     } else {
-      // TODO borrar
+      // TODO borrar el else
       this.logger.debug('userExist');
     }
 
-    // const access_token = await this.jwtService.signAsync({ sub: sub });
-
-    console.log('test');
+    const access_token = await this.jwtService.signAsync({
+      sub,
+      picture,
+      name,
+      email,
+    });
 
     const response = {
-      // access_token,
+      access_token,
       sub: currUser.sub,
       picture,
       name,
@@ -61,14 +65,14 @@ export class AuthService {
 
   async verifyToken(idToken: string) {
     try {
-      const result = await this.client.verifyIdToken({
+      const result = await this.GoogleOAuth2Client.verifyIdToken({
         idToken,
       });
 
       const payload = result.getPayload();
       return !!payload;
     } catch (error) {
-      console.error(error);
+      this.logger.error(error);
       return false;
     }
   }

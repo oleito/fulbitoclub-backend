@@ -5,13 +5,15 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { OAuth2Client } from 'google-auth-library';
 import { JwtModule } from '@nestjs/jwt';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User]),
+    ConfigModule.forRoot(),
     JwtModule.register({
       global: true,
-      // secret: process.env.JWT_SECRET,
+      privateKey: process.env.JWT_SECRET,
       signOptions: { expiresIn: '60s' },
     }),
   ],
@@ -20,7 +22,7 @@ import { JwtModule } from '@nestjs/jwt';
     AuthService,
     {
       provide: OAuth2Client,
-      useFactory: () => new OAuth2Client('process.env.GOOGLE_CLIENT_ID'),
+      useFactory: () => new OAuth2Client(process.env.GOOGLE_CLIENT_ID),
     },
   ],
 })
