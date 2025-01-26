@@ -1,0 +1,75 @@
+import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { User } from './entities/user.entity';
+import { OAuth2Client } from 'google-auth-library';
+import { JwtService } from '@nestjs/jwt';
+import { CreateUserDto } from './dto/create-user.dto';
+
+@Injectable()
+export class AuthService {
+  logger = new Logger();
+  constructor(
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+    private readonly client: OAuth2Client,
+    private readonly jwtService: JwtService,
+  ) {}
+  async validateUser(token: string) {
+    // TODO Dividir y encapsular
+    // TODO Separar en bloques/metodos
+    // TODO ver que pasa si el token es de otra APP (clientID)
+    const isValidToken = await this.verifyToken(token);
+    if (!isValidToken) {
+      throw new UnauthorizedException();
+    }
+
+    const { sub, picture, name, email } = this.jwtService.decode(token);
+
+    let currUser = await this.userRepository.findOne({
+      where: { sub: sub },
+    });
+
+    if (!currUser) {
+      const createUserDto: CreateUserDto = {
+        sub: sub,
+      };
+      const newUser = this.userRepository.create(createUserDto);
+      // TODO borrar
+      this.logger.debug('newUser');
+      currUser = await this.userRepository.save(newUser);
+    } else {
+      // TODO borrar
+      this.logger.debug('userExist');
+    }
+
+    // const access_token = await this.jwtService.signAsync({ sub: sub });
+
+    console.log('test');
+
+    const response = {
+      // access_token,
+      sub: currUser.sub,
+      picture,
+      name,
+      email,
+    };
+
+    // Agregar typescripta la response
+    return response;
+  }
+
+  async verifyToken(idToken: string) {
+    try {
+      const result = await this.client.verifyIdToken({
+        idToken,
+      });
+
+      const payload = result.getPayload();
+      return !!payload;
+    } catch (error) {
+      console.error(error);
+      return false;
+    }
+  }
+}
