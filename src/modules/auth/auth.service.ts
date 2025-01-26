@@ -73,6 +73,10 @@ export class AuthService {
       return !!payload;
     } catch (error) {
       this.logger.error(error);
+      // TODO implementar una respuesta de token vencido
+      // if(error.includes) {
+      //   throw new e
+      // }
       return false;
     }
   }

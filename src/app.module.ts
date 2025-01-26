@@ -5,11 +5,16 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './modules/auth/auth.module';
 
 import { User } from './modules/auth/entities/user.entity';
+import { EventsModule } from './modules/events/events.module';
 
 const routes: Routes = [
   {
     path: '/auth',
     module: AuthModule,
+  },
+  {
+    path: '/events',
+    module: EventsModule,
   },
 ];
 
@@ -28,6 +33,7 @@ const routes: Routes = [
       synchronize: true,
     }),
     AuthModule,
+    EventsModule,
   ],
   controllers: [],
   providers: [],
