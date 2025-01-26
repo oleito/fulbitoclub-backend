@@ -47,8 +47,6 @@ With Mau, you can deploy your application in just a few clicks, allowing you to 
 
 Para que el backend funcione correctamente, es necesario configurar las siguientes variables de entorno:
 
-- `DB_URI`: La URI de conexión a la base de datos MongoDB.
-
 - `HOSTNAME` : Host del servidor
 - `API_PORT` : Puerto de ejecucion del servidor
 
@@ -57,6 +55,8 @@ Para que el backend funcione correctamente, es necesario configurar las siguient
 - `DATABASE_USERNAME` : Usuario de la base de datos
 - `DATABASE_PASSWORD` : Password de la base de datos
 - `DATABASE_DATABASE` : Nombre de la base de datos
+
+- `GOOGLE_CLIENT_ID ` : Id de cliente proporcionado por Google
 
 Puedes configurar estas variables en un archivo `.env` en la raíz del proyecto. Ejemplo de archivo `.env`:
 
@@ -71,4 +71,7 @@ DATABASE_PORT = 3306
 DATABASE_USERNAME = root
 DATABASE_PASSWORD =
 DATABASE_DATABASE = fulbitoapp
+
+# Google clientID
+GOOGLE_CLIENT_ID = uuid.apps.googleusercontent.com
 ```
