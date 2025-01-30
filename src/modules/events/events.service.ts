@@ -12,9 +12,12 @@ export class EventsService {
     @InjectRepository(Event)
     private readonly eventRepository: Repository<Event>,
   ) {}
-  async createEvent(createEventDto: CreateEventDto) {
+  async createEvent(createEventDto: CreateEventDto, userId: any) {
     const newEvent = this.eventRepository.create(createEventDto);
-    this.logger.debug(newEvent, 'createEvent');
+
+    this.logger.debug(userId, 'userId');
+    newEvent.user = userId;
+    this.logger.debug(newEvent, 'createEvent servicews');
     return await this.eventRepository.save(newEvent);
   }
 

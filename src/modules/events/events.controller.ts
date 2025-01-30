@@ -45,13 +45,12 @@ export class EventsController {
       verify = await this.jwtService.verify(token, {
         secret: process.env.JWT_SECRET,
       });
+      this.logger.debug(verify, 'create Event controller');
     } catch {
       throw new UnauthorizedException();
     }
 
-    this.logger.debug(verify, 'create Event controller');
-
-    return this.eventsService.createEvent(createEventDto);
+    return this.eventsService.createEvent(createEventDto, verify.sub);
   }
 
   @Get()

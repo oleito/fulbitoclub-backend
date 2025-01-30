@@ -1,7 +1,9 @@
+import { User } from 'src/modules/auth/entities/user.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -19,6 +21,9 @@ export class Event {
 
   @Column({ default: true })
   isActive: boolean;
+
+  @ManyToOne(() => User, (user) => user)
+  user: User;
 
   @CreateDateColumn({
     type: 'timestamp',
