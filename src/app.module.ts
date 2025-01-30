@@ -6,6 +6,7 @@ import { AuthModule } from './modules/auth/auth.module';
 
 import { User } from './modules/auth/entities/user.entity';
 import { EventsModule } from './modules/events/events.module';
+import { Event } from './modules/events/entities/event.entity';
 
 const routes: Routes = [
   {
@@ -29,7 +30,7 @@ const routes: Routes = [
       username: process.env.DATABASE_USERNAME,
       password: process.env.DATABASE_PASSWORD,
       database: process.env.DATABASE_DATABASE,
-      entities: [User],
+      entities: [User, Event],
       synchronize: true,
     }),
     AuthModule,

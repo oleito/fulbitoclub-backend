@@ -7,15 +7,18 @@ import {
   Param,
   Delete,
   Headers,
+  Logger,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { EventsService } from './events.service';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
-import { ApiHeader } from '@nestjs/swagger';
+import { ApiBody, ApiHeader, ApiProperty } from '@nestjs/swagger';
 import { JwtService } from '@nestjs/jwt';
 
 @Controller('')
 export class EventsController {
+  logger = new Logger();
   constructor(
     private readonly eventsService: EventsService,
     private readonly jwtService: JwtService,
@@ -27,17 +30,28 @@ export class EventsController {
     description: 'Token',
     required: true,
   })
+  @ApiBody({
+    description: 'Nuevo evento',
+    type: CreateEventDto,
+  })
   async create(
     @Body() createEventDto: CreateEventDto,
     @Headers('token') token,
   ) {
     console.log(token);
-    const verify = await this.jwtService.verify(token, {
-      secret: process.env.JWT_SECRET,
-    });
-    console.log(verify);
-    // const logonId = verify.jwt.payload['logonId'];
-    return this.eventsService.create(createEventDto);
+    // TODO deberia gestionar el error generado para que sea un 401
+    let verify;
+    try {
+      verify = await this.jwtService.verify(token, {
+        secret: process.env.JWT_SECRET,
+      });
+    } catch {
+      throw new UnauthorizedException();
+    }
+
+    this.logger.debug(verify, 'create Event controller');
+
+    return this.eventsService.createEvent(createEventDto);
   }
 
   @Get()
