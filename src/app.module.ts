@@ -2,10 +2,11 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { RouterModule, Routes } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
+
 import { AuthModule } from './modules/auth/auth.module';
+import { EventsModule } from './modules/events/events.module';
 
 import { User } from './modules/auth/entities/user.entity';
-import { EventsModule } from './modules/events/events.module';
 import { Event } from './modules/events/entities/event.entity';
 
 const routes: Routes = [
