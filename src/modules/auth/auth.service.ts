@@ -33,7 +33,8 @@ export class AuthService {
     if (!currUser) {
       // TODO mover a un registerUser
       const createUserDto: CreateUserDto = {
-        sub: sub,
+        sub,
+        email,
       };
       const newUser = this.userRepository.create(createUserDto);
       // TODO borrar
@@ -44,22 +45,22 @@ export class AuthService {
       this.logger.debug('userExist');
     }
 
-    const access_token = await this.jwtService.signAsync({
-      sub,
-      picture,
-      name,
-      email,
-    });
-
-    const response = {
-      access_token,
-      sub: currUser.sub,
+    const responseData = {
+      sub: currUser.id,
+      gsub: currUser.sub,
       picture,
       name,
       email,
     };
 
-    // Agregar typescripta la response
+    const access_token = await this.jwtService.signAsync(responseData);
+
+    const response = {
+      access_token,
+      ...responseData,
+    };
+
+    // TODO Agregar typescript a la response
     return response;
   }
 
@@ -73,6 +74,10 @@ export class AuthService {
       return !!payload;
     } catch (error) {
       this.logger.error(error);
+      // TODO implementar una respuesta de token vencido
+      // if(error.includes) {
+      //   throw new e
+      // }
       return false;
     }
   }

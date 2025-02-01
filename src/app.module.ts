@@ -2,14 +2,21 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { RouterModule, Routes } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
+
 import { AuthModule } from './modules/auth/auth.module';
+import { EventsModule } from './modules/events/events.module';
 
 import { User } from './modules/auth/entities/user.entity';
+import { Event } from './modules/events/entities/event.entity';
 
 const routes: Routes = [
   {
     path: '/auth',
     module: AuthModule,
+  },
+  {
+    path: '/events',
+    module: EventsModule,
   },
 ];
 
@@ -24,10 +31,11 @@ const routes: Routes = [
       username: process.env.DATABASE_USERNAME,
       password: process.env.DATABASE_PASSWORD,
       database: process.env.DATABASE_DATABASE,
-      entities: [User],
+      entities: [User, Event],
       synchronize: true,
     }),
     AuthModule,
+    EventsModule,
   ],
   controllers: [],
   providers: [],

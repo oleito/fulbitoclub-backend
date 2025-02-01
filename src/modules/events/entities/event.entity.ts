@@ -1,24 +1,32 @@
+import { User } from 'src/modules/auth/entities/user.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
 @Entity()
-export class User {
+export class Event {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
-  sub: string;
-
-  @Column()
-  email: string;
+  @CreateDateColumn({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP(6)',
+  })
+  date: Date;
 
   @Column({ default: true })
   isActive: boolean;
+
+  @Column({ default: true })
+  description: string;
+
+  @ManyToOne(() => User, (user) => user)
+  user: User;
 
   @CreateDateColumn({
     type: 'timestamp',
