@@ -54,22 +54,38 @@ export class EventsController {
   }
 
   @Get()
-  findAll() {
-    return this.eventsService.findAll();
+  @ApiHeader({
+    name: 'token',
+    description: 'Token',
+    required: true,
+  })
+  async findAll(@Headers('token') token) {
+    // console.log(token);
+    // TODO deberia gestionar el error generado para que sea un 401
+    let verify: any;
+    try {
+      verify = await this.jwtService.verify(token, {
+        secret: process.env.JWT_SECRET,
+      });
+      // this.logger.debug(verify, 'create Event controller');
+    } catch {
+      throw new UnauthorizedException();
+    }
+    return this.eventsService.findAllByUserId(verify.sub);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.eventsService.findOne(+id);
-  }
+  // @Get(':id')
+  // findOne(@Param('id') id: string) {
+  //   return this.eventsService.findOne(+id);
+  // }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateEventDto: UpdateEventDto) {
-    return this.eventsService.update(+id, updateEventDto);
-  }
+  // @Patch(':id')
+  // update(@Param('id') id: string, @Body() updateEventDto: UpdateEventDto) {
+  //   return this.eventsService.update(+id, updateEventDto);
+  // }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.eventsService.remove(+id);
-  }
+  // @Delete(':id')
+  // remove(@Param('id') id: string) {
+  //   return this.eventsService.remove(+id);
+  // }
 }

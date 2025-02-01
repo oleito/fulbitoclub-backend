@@ -12,28 +12,20 @@ export class EventsService {
     @InjectRepository(Event)
     private readonly eventRepository: Repository<Event>,
   ) {}
+
   async createEvent(createEventDto: CreateEventDto, userId: any) {
     const newEvent = this.eventRepository.create(createEventDto);
-
-    this.logger.debug(userId, 'userId');
     newEvent.user = userId;
-    this.logger.debug(newEvent, 'createEvent servicews');
     return await this.eventRepository.save(newEvent);
   }
 
-  findAll() {
-    return `This action returns all events`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} event`;
-  }
-
-  update(id: number, updateEventDto: UpdateEventDto) {
-    return `This action updates a #${id} event`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} event`;
+  async findAllByUserId(userId: number) {
+    return await this.eventRepository.find({
+      where: {
+        user: {
+          id: userId,
+        },
+      },
+    });
   }
 }

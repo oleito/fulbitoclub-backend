@@ -22,6 +22,9 @@ export class Event {
   @Column({ default: true })
   isActive: boolean;
 
+  @Column({ default: true })
+  description: string;
+
   @ManyToOne(() => User, (user) => user)
   user: User;
 
