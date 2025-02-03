@@ -1,14 +1,16 @@
-import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
+import { Module } from '@nestjs/common';
 import { RouterModule, Routes } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
+/* modules */
 import { AuthModule } from './modules/auth/auth.module';
 import { EventsModule } from './modules/events/events.module';
 
+/* entities */
 import { User } from './modules/auth/entities/user.entity';
 import { Event } from './modules/events/entities/event.entity';
-import { JwtModule } from '@nestjs/jwt';
 
 const routes: Routes = [
   {

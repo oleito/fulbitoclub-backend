@@ -32,11 +32,11 @@ export class EventsController {
     description: 'Nuevo evento',
     type: CreateEventDto,
   })
-  async create(
+  create(
     @Body() createEventDto: CreateEventDto,
-    @Headers('token') token,
+    @Headers('token') token: string,
   ) {
-    const { sub } = await this.jwtService.verify(token);
+    const { sub } = this.jwtService.verify(token);
     return this.eventsService.createEvent(createEventDto, sub);
   }
 
@@ -46,8 +46,8 @@ export class EventsController {
     description: 'Token',
     required: true,
   })
-  async findAll(@Headers('token') token) {
-    const { sub } = await this.jwtService.verify(token);
+  findAll(@Headers('token') token: string) {
+    const { sub } = this.jwtService.verify(token);
     return this.eventsService.findAllByUserId(sub);
   }
 

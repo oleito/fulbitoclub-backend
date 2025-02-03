@@ -1,10 +1,16 @@
 import { Module } from '@nestjs/common';
-import { EventsService } from './events.service';
-import { EventsController } from './events.controller';
-import { ConfigModule } from '@nestjs/config';
-import { Event } from './entities/event.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigModule } from '@nestjs/config';
 import { JwtService } from './../../common/services/jwt/jwt.service';
+
+/* controllers */
+import { EventsController } from './events.controller';
+
+/* services */
+import { EventsService } from './events.service';
+
+/* entities */
+import { Event } from './entities/event.entity';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Event]), ConfigModule.forRoot()],

@@ -37,12 +37,7 @@ export class AuthService {
         email,
       };
       const newUser = this.userRepository.create(createUserDto);
-      // TODO borrar
-      this.logger.debug('newUser');
       currUser = await this.userRepository.save(newUser);
-    } else {
-      // TODO borrar el else
-      this.logger.debug('userExist');
     }
 
     const responseData = {
@@ -65,6 +60,7 @@ export class AuthService {
   }
 
   async verifyToken(idToken: string) {
+    this.logger.debug('testeando este metodo');
     try {
       const result = await this.GoogleOAuth2Client.verifyIdToken({
         idToken,
@@ -73,11 +69,9 @@ export class AuthService {
       const payload = result.getPayload();
       return !!payload;
     } catch (error) {
-      this.logger.error(error);
-      // TODO implementar una respuesta de token vencido
-      // if(error.includes) {
-      //   throw new e
-      // }
+      if (error.message.includes('Token used too late')) {
+        throw new UnauthorizedException('GoogleSession expired');
+      }
       return false;
     }
   }

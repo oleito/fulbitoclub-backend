@@ -1,10 +1,16 @@
-import { Module } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { AuthController } from './auth.controller';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from './entities/user.entity';
-import { OAuth2Client } from 'google-auth-library';
 import { ConfigModule } from '@nestjs/config';
+import { Module } from '@nestjs/common';
+import { OAuth2Client } from 'google-auth-library';
+import { TypeOrmModule } from '@nestjs/typeorm';
+
+/* controllers */
+import { AuthController } from './auth.controller';
+
+/* services */
+import { AuthService } from './auth.service';
+
+/* entities */
+import { User } from './entities/user.entity';
 
 @Module({
   imports: [TypeOrmModule.forFeature([User]), ConfigModule.forRoot()],

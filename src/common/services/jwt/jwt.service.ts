@@ -3,9 +3,9 @@ import * as Jwt from 'jsonwebtoken';
 
 @Injectable()
 export class JwtService {
-  async verify(token: string) {
+  verify(token: string) {
     try {
-      const verify = await Jwt.verify(token, process.env.JWT_SECRET);
+      const verify = Jwt.verify(token, process.env.JWT_SECRET);
       return verify;
     } catch {
       throw new UnauthorizedException();
