@@ -8,6 +8,7 @@ import { EventsModule } from './modules/events/events.module';
 
 import { User } from './modules/auth/entities/user.entity';
 import { Event } from './modules/events/entities/event.entity';
+import { JwtModule } from '@nestjs/jwt';
 
 const routes: Routes = [
   {
@@ -33,6 +34,13 @@ const routes: Routes = [
       database: process.env.DATABASE_DATABASE,
       entities: [User, Event],
       synchronize: true,
+    }),
+    JwtModule.register({
+      global: true,
+      privateKey: process.env.JWT_SECRET,
+      secret: process.env.JWT_SECRET,
+      publicKey: process.env.JWT_SECRET,
+      signOptions: { expiresIn: '60h' },
     }),
     AuthModule,
     EventsModule,

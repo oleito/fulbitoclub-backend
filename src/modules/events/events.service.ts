@@ -1,6 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { CreateEventDto } from './dto/create-event.dto';
-import { UpdateEventDto } from './dto/update-event.dto';
 import { Repository } from 'typeorm';
 import { Event } from './entities/event.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -19,7 +18,7 @@ export class EventsService {
     return await this.eventRepository.save(newEvent);
   }
 
-  async findAllByUserId(userId: number) {
+  async findAllByUserId(userId) {
     return await this.eventRepository.find({
       where: {
         user: {
