@@ -37,7 +37,7 @@ export class EventsController {
     @Headers('token') token: string,
   ) {
     const { sub } = this.jwtService.verify(token);
-    return this.eventsService.createEvent(createEventDto, sub);
+    return this.eventsService.createEvent(createEventDto, Number(sub));
   }
 
   @Get()
@@ -48,7 +48,7 @@ export class EventsController {
   })
   findAll(@Headers('token') token: string) {
     const { sub } = this.jwtService.verify(token);
-    return this.eventsService.findAllByUserId(sub);
+    return this.eventsService.findAllByUserId(Number(sub));
   }
 
   // @Get(':id')
