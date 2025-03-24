@@ -13,12 +13,13 @@ export class EventsService {
   ) {}
 
   async createEvent(createEventDto: CreateEventDto, userId: any) {
+    // TODO: Verificar que el userID este bien en el tipo de dato
     const newEvent = this.eventRepository.create(createEventDto);
     newEvent.user = userId;
     return await this.eventRepository.save(newEvent);
   }
 
-  async findAllByUserId(userId) {
+  async findAllByUserId(userId: number) {
     return await this.eventRepository.find({
       where: {
         user: {
