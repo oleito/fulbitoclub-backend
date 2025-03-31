@@ -12,7 +12,7 @@ export class AuthController {
     description: 'Token de Google',
     required: true,
   })
-  userValidation(@Headers('token') token) {
+  userValidation(@Headers('token') token: string) {
     return this.authService.validateUser(token);
   }
 }

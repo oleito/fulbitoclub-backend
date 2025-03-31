@@ -1,20 +1,8 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  Headers,
-  Logger,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Headers, Logger } from '@nestjs/common';
 import { EventsService } from './events.service';
 import { CreateEventDto } from './dto/create-event.dto';
-import { UpdateEventDto } from './dto/update-event.dto';
-import { ApiBody, ApiHeader, ApiProperty } from '@nestjs/swagger';
-import { JwtService } from '@nestjs/jwt';
+import { ApiBody, ApiHeader } from '@nestjs/swagger';
+import { JwtService } from 'src/common/services/jwt/jwt.service';
 
 @Controller('')
 export class EventsController {
@@ -34,23 +22,12 @@ export class EventsController {
     description: 'Nuevo evento',
     type: CreateEventDto,
   })
-  async create(
+  create(
     @Body() createEventDto: CreateEventDto,
-    @Headers('token') token,
+    @Headers('token') token: string,
   ) {
-    console.log(token);
-    // TODO deberia gestionar el error generado para que sea un 401
-    let verify;
-    try {
-      verify = await this.jwtService.verify(token, {
-        secret: process.env.JWT_SECRET,
-      });
-      this.logger.debug(verify, 'create Event controller');
-    } catch {
-      throw new UnauthorizedException();
-    }
-
-    return this.eventsService.createEvent(createEventDto, verify.sub);
+    const { sub } = this.jwtService.verify(token);
+    return this.eventsService.createEvent(createEventDto, Number(sub));
   }
 
   @Get()
@@ -59,19 +36,9 @@ export class EventsController {
     description: 'Token',
     required: true,
   })
-  async findAll(@Headers('token') token) {
-    // console.log(token);
-    // TODO deberia gestionar el error generado para que sea un 401
-    let verify: any;
-    try {
-      verify = await this.jwtService.verify(token, {
-        secret: process.env.JWT_SECRET,
-      });
-      // this.logger.debug(verify, 'create Event controller');
-    } catch {
-      throw new UnauthorizedException();
-    }
-    return this.eventsService.findAllByUserId(verify.sub);
+  findAll(@Headers('token') token: string) {
+    const { sub } = this.jwtService.verify(token);
+    return this.eventsService.findAllByUserId(Number(sub));
   }
 
   // @Get(':id')

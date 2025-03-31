@@ -1,13 +1,18 @@
-import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
+import { Module } from '@nestjs/common';
 import { RouterModule, Routes } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
+/* modules */
 import { AuthModule } from './modules/auth/auth.module';
 import { EventsModule } from './modules/events/events.module';
 
+/* entities */
 import { User } from './modules/auth/entities/user.entity';
 import { Event } from './modules/events/entities/event.entity';
+import { ClubsModule } from './modules/clubs/clubs.module';
+import { Club } from './modules/clubs/entities/club.entity';
 
 const routes: Routes = [
   {
@@ -17,6 +22,10 @@ const routes: Routes = [
   {
     path: '/events',
     module: EventsModule,
+  },
+  {
+    path: '/clubs',
+    module: ClubsModule,
   },
 ];
 
@@ -31,11 +40,19 @@ const routes: Routes = [
       username: process.env.DATABASE_USERNAME,
       password: process.env.DATABASE_PASSWORD,
       database: process.env.DATABASE_DATABASE,
-      entities: [User, Event],
+      entities: [User, Event, Club],
       synchronize: true,
+    }),
+    JwtModule.register({
+      global: true,
+      privateKey: process.env.JWT_SECRET,
+      secret: process.env.JWT_SECRET,
+      publicKey: process.env.JWT_SECRET,
+      signOptions: { expiresIn: '60h' },
     }),
     AuthModule,
     EventsModule,
+    ClubsModule,
   ],
   controllers: [],
   providers: [],

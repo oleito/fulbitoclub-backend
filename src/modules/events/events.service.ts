@@ -1,6 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { CreateEventDto } from './dto/create-event.dto';
-import { UpdateEventDto } from './dto/update-event.dto';
 import { Repository } from 'typeorm';
 import { Event } from './entities/event.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -14,6 +13,7 @@ export class EventsService {
   ) {}
 
   async createEvent(createEventDto: CreateEventDto, userId: any) {
+    // TODO: Verificar que el userID este bien en el tipo de dato
     const newEvent = this.eventRepository.create(createEventDto);
     newEvent.user = userId;
     return await this.eventRepository.save(newEvent);

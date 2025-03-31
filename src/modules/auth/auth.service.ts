@@ -1,10 +1,16 @@
-import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  UnauthorizedException,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { OAuth2Client } from 'google-auth-library';
 import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from './dto/create-user.dto';
+import { AuthResponse } from 'src/common/models/auth/auth.model';
 
 @Injectable()
 export class AuthService {
@@ -15,9 +21,7 @@ export class AuthService {
     private readonly GoogleOAuth2Client: OAuth2Client,
     private readonly jwtService: JwtService,
   ) {}
-  async validateUser(token: string) {
-    // TODO Dividir y encapsular
-    // TODO Separar en bloques/metodos
+  async validateUser(token: string): Promise<AuthResponse> {
     // TODO ver que pasa si el token es de otra APP (clientID)
     const isValidToken = await this.verifyToken(token);
     if (!isValidToken) {
@@ -26,24 +30,7 @@ export class AuthService {
 
     const { sub, picture, name, email } = this.jwtService.decode(token);
 
-    let currUser = await this.userRepository.findOne({
-      where: { sub: sub },
-    });
-
-    if (!currUser) {
-      // TODO mover a un registerUser
-      const createUserDto: CreateUserDto = {
-        sub,
-        email,
-      };
-      const newUser = this.userRepository.create(createUserDto);
-      // TODO borrar
-      this.logger.debug('newUser');
-      currUser = await this.userRepository.save(newUser);
-    } else {
-      // TODO borrar el else
-      this.logger.debug('userExist');
-    }
+    const currUser: User = await this.getOrRegisterUser(sub, email);
 
     const responseData = {
       sub: currUser.id,
@@ -60,7 +47,6 @@ export class AuthService {
       ...responseData,
     };
 
-    // TODO Agregar typescript a la response
     return response;
   }
 
@@ -73,12 +59,32 @@ export class AuthService {
       const payload = result.getPayload();
       return !!payload;
     } catch (error) {
-      this.logger.error(error);
-      // TODO implementar una respuesta de token vencido
-      // if(error.includes) {
-      //   throw new e
-      // }
-      return false;
+      if (error.message.includes('Token used too late')) {
+        throw new UnauthorizedException('GoogleSession expired');
+      }
+      this.logger.error('Error in verifyToken:', error);
+      throw new InternalServerErrorException();
+    }
+  }
+
+  async getOrRegisterUser(sub: string, email: string): Promise<User> {
+    try {
+      let currUser = await this.userRepository.findOne({
+        where: { sub: sub },
+      });
+
+      if (!currUser) {
+        const createUserDto: CreateUserDto = {
+          sub,
+          email,
+        };
+        const newUser = this.userRepository.create(createUserDto);
+        currUser = await this.userRepository.save(newUser);
+      }
+      return currUser;
+    } catch (error) {
+      this.logger.error('Error in getOrRegisterUser:', error);
+      throw new InternalServerErrorException();
     }
   }
 }
