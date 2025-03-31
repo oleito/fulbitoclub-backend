@@ -1,14 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  Headers,
-  Logger,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Headers, Logger } from '@nestjs/common';
 import { EventsService } from './events.service';
 import { CreateEventDto } from './dto/create-event.dto';
 import { ApiBody, ApiHeader } from '@nestjs/swagger';
