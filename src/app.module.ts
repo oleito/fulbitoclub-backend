@@ -11,6 +11,8 @@ import { EventsModule } from './modules/events/events.module';
 /* entities */
 import { User } from './modules/auth/entities/user.entity';
 import { Event } from './modules/events/entities/event.entity';
+import { ClubsModule } from './modules/clubs/clubs.module';
+import { Club } from './modules/clubs/entities/club.entity';
 
 const routes: Routes = [
   {
@@ -20,6 +22,10 @@ const routes: Routes = [
   {
     path: '/events',
     module: EventsModule,
+  },
+  {
+    path: '/clubs',
+    module: ClubsModule,
   },
 ];
 
@@ -34,7 +40,7 @@ const routes: Routes = [
       username: process.env.DATABASE_USERNAME,
       password: process.env.DATABASE_PASSWORD,
       database: process.env.DATABASE_DATABASE,
-      entities: [User, Event],
+      entities: [User, Event, Club],
       synchronize: true,
     }),
     JwtModule.register({
@@ -46,6 +52,7 @@ const routes: Routes = [
     }),
     AuthModule,
     EventsModule,
+    ClubsModule,
   ],
   controllers: [],
   providers: [],
