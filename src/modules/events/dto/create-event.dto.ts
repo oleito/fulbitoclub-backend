@@ -11,4 +11,9 @@ export class CreateEventDto {
   @IsNotEmpty()
   @ApiProperty()
   description: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty()
+  clubId: string;
 }

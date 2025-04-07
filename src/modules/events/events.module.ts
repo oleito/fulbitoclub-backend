@@ -11,9 +11,10 @@ import { EventsService } from './events.service';
 /* entities */
 import { Event } from './entities/event.entity';
 import { JwtService } from 'src/common/services/jwt/jwt.service';
+import { Club } from '../clubs/entities/club.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Event]), ConfigModule.forRoot()],
+  imports: [TypeOrmModule.forFeature([Event, Club]), ConfigModule.forRoot()],
   controllers: [EventsController],
   providers: [EventsService, JwtService],
 })
