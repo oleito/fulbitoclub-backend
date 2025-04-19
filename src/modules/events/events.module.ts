@@ -13,10 +13,11 @@ import { Event } from './entities/event.entity';
 import { JwtService } from 'src/common/services/jwt/jwt.service';
 import { Club } from '../clubs/entities/club.entity';
 import { EventInvitedUser } from './entities/event-invited-user.entity';
+import { User } from '../auth/entities/user.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Event, Club, EventInvitedUser]),
+    TypeOrmModule.forFeature([Event, Club, EventInvitedUser, User]),
     ConfigModule.forRoot(),
   ],
   controllers: [EventsController],

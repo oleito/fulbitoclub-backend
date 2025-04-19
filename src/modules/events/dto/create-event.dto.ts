@@ -12,8 +12,4 @@ export class CreateEventDto {
   @ApiProperty()
   description: string;
 
-  @IsString()
-  @IsOptional()
-  @ApiProperty()
-  clubId?: string;
 }

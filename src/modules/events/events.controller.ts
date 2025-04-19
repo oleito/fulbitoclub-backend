@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Headers, Logger } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Headers,
+  Logger,
+  Param,
+} from '@nestjs/common';
 import { EventsService } from './events.service';
 import { CreateEventDto } from './dto/create-event.dto';
 import { ApiBody, ApiHeader } from '@nestjs/swagger';
@@ -41,10 +49,28 @@ export class EventsController {
     return this.eventsService.findAllByUserId(Number(sub));
   }
 
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.eventsService.findOne(+id);
-  // }
+  @Get(':id')
+  @ApiHeader({
+    name: 'token',
+    description: 'Token',
+    required: true,
+  })
+  findOne(@Headers('token') token: string, @Param('id') id: string) {
+    const { sub } = this.jwtService.verify(token);
+    return this.eventsService.findAllById(+id, Number(sub));
+  }
+
+  @Post('/invite/:id')
+  @ApiHeader({
+    name: 'token',
+    description: 'Token',
+    required: true,
+  })
+  aceptInvite(@Headers('token') token: string, @Param('id') eventId: string) {
+    const { sub } = this.jwtService.verify(token);
+    // TODO aca deberia poder recibir el caso de rechazo
+    return this.eventsService.aceptInvite(+eventId, Number(sub));
+  }
 
   // @Patch(':id')
   // update(@Param('id') id: string, @Body() updateEventDto: UpdateEventDto) {

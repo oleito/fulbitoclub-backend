@@ -27,13 +27,10 @@ export class Event {
   @Column({ default: true })
   description: string;
 
-  // Club to which the event belongs, future implementation.
-  @ManyToOne(() => Club, (club) => club, { nullable: true })
-  club: Club;
 
   // Owner of the event
   @ManyToOne(() => User, (user) => user)
-  user: User;
+  owner: User;
 
   @ManyToOne(() => EventInvitedUser, (invitedUser) => invitedUser.event)
   invitedUsers: EventInvitedUser[];

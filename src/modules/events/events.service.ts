@@ -1,9 +1,11 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { CreateEventDto } from './dto/create-event.dto';
-import { In, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Event } from './entities/event.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Club } from '../clubs/entities/club.entity';
+
+import { EventInvitedUser } from './entities/event-invited-user.entity';
+import { User } from '../auth/entities/user.entity';
 
 @Injectable()
 export class EventsService {
@@ -11,54 +13,81 @@ export class EventsService {
   constructor(
     @InjectRepository(Event)
     private readonly eventRepository: Repository<Event>,
-    @InjectRepository(Club)
-    private readonly clubRepository: Repository<Club>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+    @InjectRepository(EventInvitedUser)
+    private readonly eventInvitedUserRepository: Repository<EventInvitedUser>,
   ) {}
 
+  /**
+   * * Crea un evento
+   * @param createEventDto
+   * @param userId
+   * @returns Promise<Event>
+   */
   async createEvent(createEventDto: CreateEventDto, userId: any) {
-    const clubExist = await this.clubRepository.find({
-      where: {
-        id: Number(createEventDto.clubId),
-        user: {
-          id: userId,
-        },
-      },
-    });
-
-    if (!clubExist || clubExist.length === 0) {
-      throw new BadRequestException();
-    }
-
     const newEvent = this.eventRepository.create(createEventDto);
+    newEvent.owner = userId;
 
-    newEvent.club = clubExist[0];
-
-    // TODO verificar el que ID del club exista y sea propio
     return await this.eventRepository.save(newEvent);
   }
 
+  /**
+   * * Busca un evento para un usuario
+   * @param userId
+   * @returns Promise<Event>
+   */
   async findAllByUserId(userId: number) {
-    const clubs = await this.clubRepository.find({
+    return await this.eventRepository.find({
+      // TODO tiene que buscar por invitados
+      where: { owner: { id: userId } },
+    });
+  }
+
+  /**
+   * * Busca un evento por id
+   * @param eventId
+   * @returns Promise<Event>
+   */
+  async findAllById(eventId: number, userId?: number) {
+    // TODO filtrar contenido por rol
+    return await this.eventRepository.find({
+      where: { id: eventId },
+    });
+  }
+
+  /**
+   * * Acepta una invitacion a un evento
+   * @param eventId
+   * @param userId
+   * @returns Promise<Event>
+   */
+  async aceptInvite(eventId: number, userId: number) {
+    const relationExists = await this.eventInvitedUserRepository.find({
       where: {
-        user: {
-          id: userId,
-        },
+        user: { id: userId },
+        event: { id: eventId },
       },
     });
 
-    const clubsIds = clubs.map((club) => club.id);
-    if (clubsIds.length === 0) {
-      return [];
+    if (relationExists) {
+      throw new BadRequestException();
     }
 
-    return await this.eventRepository.find({
-      where: { club: { id: In(clubsIds) } },
-      relations: ['club'],
-      order: {
-        club: {
-          id: 'ASC',
-        },
-      },
+    const event = await this.eventRepository.findOne({
+      where: { id: eventId },
     });
+
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+    });
+
+    // TODO definir si siempre tendria que ser un update
+    const newRelation = this.eventInvitedUserRepository.create({
+      user,
+      event,
+    });
+
+    return await this.eventInvitedUserRepository.save(newRelation);
   }
 }
