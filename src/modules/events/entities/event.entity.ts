@@ -1,3 +1,4 @@
+import { User } from 'src/modules/auth/entities/user.entity';
 import { Club } from 'src/modules/clubs/entities/club.entity';
 import {
   Column,
@@ -7,6 +8,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { EventInvitedUser } from './event-invited-user.entity';
 
 @Entity()
 export class Event {
@@ -25,8 +27,16 @@ export class Event {
   @Column({ default: true })
   description: string;
 
-  @ManyToOne(() => Club, (club) => club)
+  // Club to which the event belongs, future implementation.
+  @ManyToOne(() => Club, (club) => club, { nullable: true })
   club: Club;
+
+  // Owner of the event
+  @ManyToOne(() => User, (user) => user)
+  user: User;
+
+  @ManyToOne(() => EventInvitedUser, (invitedUser) => invitedUser.event)
+  invitedUsers: EventInvitedUser[];
 
   @CreateDateColumn({
     type: 'timestamp',
