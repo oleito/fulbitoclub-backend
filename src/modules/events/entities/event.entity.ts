@@ -27,6 +27,8 @@ export class Event {
   @Column({ default: true })
   description: string;
 
+  @Column({ unique: true })
+  invitationCode: string;
 
   // Owner of the event
   @ManyToOne(() => User, (user) => user)

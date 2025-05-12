@@ -8,12 +8,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Event } from './event.entity';
-
-// TODO: Refactor this enum to a separate file
-enum statusEnum {
-  ACCEPTED = 'accepted',
-  REJECTED = 'rejected',
-}
+import { statusEnum } from '../enum/status.enum';
 
 @Entity()
 export class EventInvitedUser {
