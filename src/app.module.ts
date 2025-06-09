@@ -13,6 +13,7 @@ import { User } from './modules/auth/entities/user.entity';
 import { Event } from './modules/events/entities/event.entity';
 import { ClubsModule } from './modules/clubs/clubs.module';
 import { Club } from './modules/clubs/entities/club.entity';
+import { EventInvitedUser } from './modules/events/entities/event-invited-user.entity';
 
 const routes: Routes = [
   {
@@ -40,7 +41,7 @@ const routes: Routes = [
       username: process.env.DATABASE_USERNAME,
       password: process.env.DATABASE_PASSWORD,
       database: process.env.DATABASE_DATABASE,
-      entities: [User, Event, Club],
+      entities: [User, Event, Club, EventInvitedUser],
       synchronize: true,
     }),
     JwtModule.register({

@@ -28,6 +28,8 @@ export class AuthService {
       throw new UnauthorizedException();
     }
 
+    // TODO: si el token tiene "" se produce un internal server error
+
     const { sub, picture, name, email } = this.jwtService.decode(token);
 
     const currUser: User = await this.getOrRegisterUser(sub, email);

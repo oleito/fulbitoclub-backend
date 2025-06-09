@@ -1,8 +1,18 @@
-import { Controller, Get, Post, Body, Headers, Logger } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Headers,
+  Logger,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { EventsService } from './events.service';
 import { CreateEventDto } from './dto/create-event.dto';
 import { ApiBody, ApiHeader } from '@nestjs/swagger';
 import { JwtService } from 'src/common/services/jwt/jwt.service';
+import { AcceptInviteDto } from './dto/accept-invite.dto';
 
 @Controller('')
 export class EventsController {
@@ -19,15 +29,15 @@ export class EventsController {
     required: true,
   })
   @ApiBody({
-    description: 'Nuevo evento',
+    description: 'Create event',
     type: CreateEventDto,
   })
-  create(
+  createEvent(
     @Body() createEventDto: CreateEventDto,
     @Headers('token') token: string,
   ) {
     const { sub } = this.jwtService.verify(token);
-    return this.eventsService.createEvent(createEventDto, Number(sub));
+    return this.eventsService.createEvent(createEventDto, +sub);
   }
 
   @Get()
@@ -36,23 +46,49 @@ export class EventsController {
     description: 'Token',
     required: true,
   })
-  findAll(@Headers('token') token: string) {
+  findAllByUserId(@Headers('token') token: string) {
     const { sub } = this.jwtService.verify(token);
-    return this.eventsService.findAllByUserId(Number(sub));
+    return this.eventsService.findAllByUserId(+sub);
   }
 
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.eventsService.findOne(+id);
-  // }
+  @Get(':id')
+  @ApiHeader({
+    name: 'token',
+    description: 'Token',
+    required: true,
+  })
+  findOneById(@Headers('token') token: string, @Param('id') id: string) {
+    const { sub } = this.jwtService.verify(token);
+    return this.eventsService.findOneById(+id, +sub);
+  }
 
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updateEventDto: UpdateEventDto) {
-  //   return this.eventsService.update(+id, updateEventDto);
-  // }
+  @Post('/invite/:id')
+  @ApiHeader({
+    name: 'token',
+    description: 'Token',
+    required: true,
+  })
+  acceptOrUpdateInvite(
+    @Body() acceptInviteDto: AcceptInviteDto,
+    @Headers('token') token: string,
+    @Param('id') invitationCode: string,
+  ) {
+    const { sub } = this.jwtService.verify(token);
+    return this.eventsService.acceptOrUpdateInvite(
+      invitationCode,
+      +sub,
+      acceptInviteDto.action,
+    );
+  }
 
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.eventsService.remove(+id);
-  // }
+  @Delete(':id')
+  @ApiHeader({
+    name: 'token',
+    description: 'Token',
+    required: true,
+  })
+  deleteInvite(@Headers('token') token: string, @Param('id') id: string) {
+    const { sub } = this.jwtService.verify(token);
+    return this.eventsService.deleteInvite(+id, +sub);
+  }
 }
