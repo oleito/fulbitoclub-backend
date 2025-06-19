@@ -28,6 +28,9 @@ async function bootstrap() {
   const port = configService.get('API_PORT');
   const hostname = configService.get('HOSTNAME');
 
+  // TODO enable CORS
+  app.enableCors();
+
   await app.listen(port, hostname, () => {
     const address = 'http' + '://' + hostname + ':' + port + '/';
     logger.log('Listening at ' + address, 'AppModule');
