@@ -62,7 +62,7 @@ export class EventsController {
     return this.eventsService.findOneById(+id, +sub);
   }
 
-  @Post('/invite/:id')
+  @Post('/invite/:invitationCode')
   @ApiHeader({
     name: 'token',
     description: 'Token',
@@ -71,7 +71,7 @@ export class EventsController {
   acceptOrUpdateInvite(
     @Body() acceptInviteDto: AcceptInviteDto,
     @Headers('token') token: string,
-    @Param('id') invitationCode: string,
+    @Param('invitationCode') invitationCode: string,
   ) {
     const { sub } = this.jwtService.verify(token);
     return this.eventsService.acceptOrUpdateInvite(

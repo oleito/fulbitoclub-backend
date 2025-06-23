@@ -76,24 +76,32 @@ export class EventsService {
       throw new NotFoundException('Event not found');
     }
 
-    // verificar si el usuario ya fue invitado al evento
-    const invitedUsers = await this.eventInvitedUserRepository.find({
+    // obtiene los usuarios invitados al evento
+    const invitedUsersExists = await this.eventInvitedUserRepository.find({
       where: {
         event: { id: event.id },
         status: statusEnum.ACCEPTED,
       },
       relations: ['user'],
     });
-    event.invitedUsers = invitedUsers;
 
-    if (event.owner.id === userId) {
-      return event;
-    }
+    // filtra la respuesta para solo incluir el status y el usuario
+    const invitedUsers = invitedUsersExists.map((e) => {
+      const { status, user } = e;
+      return {
+        status,
+        user,
+      };
+    });
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { owner, ...filteredResponse } = event;
-
-    return filteredResponse;
+    return {
+      date: event.date,
+      players_per_team: event.players_per_team,
+      place: event.place,
+      description: event.description,
+      invitationCode: event.invitationCode,
+      invitedUsers: invitedUsers,
+    };
   }
 
   /**
@@ -137,7 +145,11 @@ export class EventsService {
       status: action,
     });
 
-    return await this.eventInvitedUserRepository.save(newRelation);
+    const inviteResult =
+      await this.eventInvitedUserRepository.save(newRelation);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { status, ...rest } = inviteResult;
+    return status;
   }
 
   /**

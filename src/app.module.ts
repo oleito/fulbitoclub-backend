@@ -49,7 +49,7 @@ const routes: Routes = [
       privateKey: process.env.JWT_SECRET,
       secret: process.env.JWT_SECRET,
       publicKey: process.env.JWT_SECRET,
-      signOptions: { expiresIn: '60h' },
+      signOptions: { expiresIn: process.env.JWT_EXPIRES_IN },
     }),
     AuthModule,
     EventsModule,
