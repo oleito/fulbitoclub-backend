@@ -1,5 +1,4 @@
 import { User } from 'src/modules/auth/entities/user.entity';
-import { Club } from 'src/modules/clubs/entities/club.entity';
 import {
   Column,
   CreateDateColumn,
@@ -15,19 +14,19 @@ export class Event {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @CreateDateColumn({
-    type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP(6)',
-  })
+  @CreateDateColumn({ type: 'timestamp' })
   date: Date;
 
-  @Column({ default: true })
-  isActive: boolean;
+  @Column({ type: 'int' })
+  players_per_team: number;
 
-  @Column({ default: true })
+  @Column({ type: 'text' })
+  place: string;
+
+  @Column({ type: 'text' })
   description: string;
 
-  @Column({ unique: true })
+  @Column({ type: 'text' })
   invitationCode: string;
 
   // Owner of the event
@@ -36,6 +35,9 @@ export class Event {
 
   @ManyToOne(() => EventInvitedUser, (invitedUser) => invitedUser.event)
   invitedUsers: EventInvitedUser[];
+
+  @Column({ default: true })
+  isActive: boolean;
 
   @CreateDateColumn({
     type: 'timestamp',
