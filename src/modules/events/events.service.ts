@@ -17,6 +17,16 @@ import { customAlphabet } from 'nanoid';
 const alphabet =
   '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 
+// Respuesta filtrada para eventos
+export interface EventResponse {
+  id: number;
+  date: Date;
+  place: string;
+  players_per_team: number;
+  description: string;
+  invitationCode: string;
+}
+
 @Injectable()
 export class EventsService {
   logger = new Logger();
@@ -35,15 +45,27 @@ export class EventsService {
    * @param userId
    * @returns Promise<Event>
    */
-  async createEvent(createEventDto: CreateEventDto, userId: any) {
+  async createEvent(
+    createEventDto: CreateEventDto,
+    userId: any,
+  ): Promise<EventResponse> {
     const newEvent = this.eventRepository.create(createEventDto);
     newEvent.owner = userId;
 
     const nanoid = customAlphabet(alphabet, 8);
-
     newEvent.invitationCode = nanoid(8);
 
-    return await this.eventRepository.save(newEvent);
+    const savedEvent = await this.eventRepository.save(newEvent);
+
+    // Retornar solo los campos relevantes
+    return {
+      id: savedEvent.id,
+      date: savedEvent.date,
+      place: savedEvent.place,
+      players_per_team: savedEvent.players_per_team,
+      description: savedEvent.description,
+      invitationCode: savedEvent.invitationCode,
+    };
   }
 
   /**
@@ -51,13 +73,34 @@ export class EventsService {
    * @param userId
    * @returns Promise<Event>
    */
-  async findAllByUserId(userId: number) {
-    // TODO todos los eventos en los que esta inscripto el usuario, ver la tabla de relaciones
-    // TODO ver como buscar los eventos creados
-    return await this.eventRepository.find({
-      // TODO tiene que buscar por invitados
+  async findAllByUserId(userId: number): Promise<EventResponse[]> {
+    const createdEvents = await this.eventRepository.find({
       where: { owner: { id: userId }, isActive: true },
     });
+    const invitedEventsRelations = await this.eventInvitedUserRepository.find({
+      where: { user: { id: userId }, status: statusEnum.ACCEPTED },
+      relations: ['event'],
+    });
+
+    const invitedEvents = invitedEventsRelations.map((e) => ({
+      event: e.event,
+    }));
+
+    const events = [
+      ...createdEvents,
+      ...invitedEvents
+        .filter((e) => !createdEvents.some((ce) => ce.id === e.event.id))
+        .map((e) => ({ ...e.event })),
+    ];
+
+    return events.map((event) => ({
+      id: event.id,
+      date: event.date,
+      place: event.place,
+      players_per_team: event.players_per_team,
+      description: event.description,
+      invitationCode: event.invitationCode,
+    }));
   }
 
   /**
@@ -65,8 +108,10 @@ export class EventsService {
    * @param eventId
    * @returns Promise<Event>
    */
-  async findOneById(eventId: number, userId?: number) {
-    // TODO refactorizar la relacion (join??)
+  async findOneById(
+    eventId: number,
+    userId?: number,
+  ): Promise<EventResponse & { invitedUsers: any[] }> {
     const event = await this.eventRepository.findOne({
       where: { id: eventId, isActive: true },
       relations: ['owner', 'invitedUsers'],
@@ -76,7 +121,6 @@ export class EventsService {
       throw new NotFoundException('Event not found');
     }
 
-    // obtiene los usuarios invitados al evento
     const invitedUsersExists = await this.eventInvitedUserRepository.find({
       where: {
         event: { id: event.id },
@@ -85,7 +129,6 @@ export class EventsService {
       relations: ['user'],
     });
 
-    // filtra la respuesta para solo incluir el status y el usuario
     const invitedUsers = invitedUsersExists.map((e) => {
       const { status, user } = e;
       return {
@@ -95,12 +138,38 @@ export class EventsService {
     });
 
     return {
+      id: event.id,
+      date: event.date,
+      place: event.place,
+      players_per_team: event.players_per_team,
+      description: event.description,
+      invitationCode: event.invitationCode,
+      invitedUsers,
+    };
+  }
+
+  /**
+   * * Acepta una invitacion a un evento
+   * @param eventId
+   * @param userId
+   * @returns Promise<Event>
+   */
+  async findOneByInvitationCode(invitationCode: string) {
+    // obtener el evento por invitationCode
+    const event = await this.eventRepository.findOne({
+      where: { invitationCode, isActive: true },
+    });
+    if (!event) {
+      throw new NotFoundException('Event not found');
+    }
+
+    // return event;
+    // const { status, ...rest } = event;
+    return {
       date: event.date,
       players_per_team: event.players_per_team,
       place: event.place,
       description: event.description,
-      invitationCode: event.invitationCode,
-      invitedUsers: invitedUsers,
     };
   }
 

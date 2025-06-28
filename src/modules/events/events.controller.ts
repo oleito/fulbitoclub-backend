@@ -62,6 +62,11 @@ export class EventsController {
     return this.eventsService.findOneById(+id, +sub);
   }
 
+  @Get('/invite/:invitationCode')
+  findOneByInvitationCode(@Param('invitationCode') invitationCode: string) {
+    return this.eventsService.findOneByInvitationCode(invitationCode);
+  }
+
   @Post('/invite/:invitationCode')
   @ApiHeader({
     name: 'token',
